@@ -56,6 +56,11 @@ const ToDoList = () => {
 
     }
 
+    function deleteData(){
+        localStorage.clear();
+        setTasks([]);
+    }
+
     function toggleTaskCompletion(index) {
         setTasks((prevTasks) =>
             prevTasks.map((task, i) =>
@@ -111,6 +116,11 @@ const ToDoList = () => {
                 </li>
             )}
         </ol>
+        <button
+            className="delete-button"
+            onClick={deleteData}>
+                Delete all saved data
+            </button>
 
     </div>);
 }
