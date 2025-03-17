@@ -3,14 +3,14 @@ import React, { useState, useEffect } from "react"
 const ToDoList = () => {
     //lazy initialization, load from saved local storage when initialize
     //prevents unnecessary re-render
-    const [ tasks, setTasks ] = useState(()=>{
+    const [tasks, setTasks] = useState(() => {
         const savedTasks = localStorage.getItem("tasks");
         return savedTasks ? JSON.parse(savedTasks) : [];
     });
     const [newTask, setNewTask] = useState("");
 
     //save tasks on to local storage whenever tasks change
-    useEffect(()=>{
+    useEffect(() => {
         localStorage.setItem("tasks", JSON.stringify(tasks));
     }, [tasks]);
 
@@ -20,40 +20,48 @@ const ToDoList = () => {
         setNewTask(event.target.value);
     }
     function addTask() {
-        if(newTask.trim()!==""){
+        if (newTask.trim() !== "") {
             //updater function, previous state tasks is t
-            setTasks(t => [...t, newTask]);
+            setTasks((prevTasks) => [...prevTasks, { text: newTask, completed: false }]);
             //reset val
             setNewTask("");
         }
     }
     function deleteTask(index) {
         //filter out chosen deleted task
-        const updatedTasks = tasks.filter((_, i)=> i !== index)
+        const updatedTasks = tasks.filter((_, i) => i !== index)
         setTasks(updatedTasks);
 
     }
 
     function moveTaskUp(index) {
-        if(index > 0){
+        if (index > 0) {
             const updatedTasks = [...tasks];
             //array destructuring to swapt positions
-            [updatedTasks[index], updatedTasks[index-1]] = 
-            [updatedTasks[index-1], updatedTasks[index]];
+            [updatedTasks[index], updatedTasks[index - 1]] =
+                [updatedTasks[index - 1], updatedTasks[index]];
             setTasks(updatedTasks);
         }
 
     }
 
     function moveTaskDown(index) {
-        if(index < tasks.length-1){
+        if (index < tasks.length - 1) {
             const updatedTasks = [...tasks];
             //array destructuring to swapt positions
-            [updatedTasks[index], updatedTasks[index+1]] = 
-            [updatedTasks[index+1], updatedTasks[index]];
+            [updatedTasks[index], updatedTasks[index + 1]] =
+                [updatedTasks[index + 1], updatedTasks[index]];
             setTasks(updatedTasks);
         }
 
+    }
+
+    function toggleTaskCompletion(index) {
+        setTasks((prevTasks) =>
+            prevTasks.map((task, i) =>
+                i === index ? { ...task, completed: !task.completed } : task
+            )
+        );
     }
 
     return (<div className="to-do-list">
@@ -73,25 +81,31 @@ const ToDoList = () => {
             </button>
         </div>
         <ol>
-            {tasks.map((task, index)=>
+            {tasks.filter(task => task.text?.trim() !== "")
+                .map((task, index) =>
                 <li key={index}>
-                    <span className="text">{task}</span>
-                    <button 
+                    <input
+                        type="checkbox"
+                        checked={task.completed}
+                        onChange={() => toggleTaskCompletion(index)}
+                    />
+                    <span className="text" style={{ textDecoration: task.completed ? "line-through" : "none" }}>{task.text}</span>
+                    <button
                         className="delete-button"
                         // arrow function prevents immediate call of function
-                        onClick={()=>deleteTask(index)}>
+                        onClick={() => deleteTask(index)}>
                         Delete
                     </button>
-                    <button 
+                    <button
                         className="priority-button"
                         // arrow function prevents immediate call of function
-                        onClick={()=>moveTaskUp(index)}>
+                        onClick={() => moveTaskUp(index)}>
                         Higher priority
                     </button>
-                    <button 
+                    <button
                         className="priority-button"
                         // arrow function prevents immediate call of function
-                        onClick={()=>moveTaskDown(index)}>
+                        onClick={() => moveTaskDown(index)}>
                         Lower priority
                     </button>
                 </li>
