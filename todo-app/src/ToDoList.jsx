@@ -1,9 +1,18 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 
 const ToDoList = () => {
-
-    const [ tasks, setTasks ] = useState([]);
+    //lazy initialization, load from saved local storage when initialize
+    //prevents unnecessary re-render
+    const [ tasks, setTasks ] = useState(()=>{
+        const savedTasks = localStorage.getItem("tasks");
+        return savedTasks ? JSON.parse(savedTasks) : [];
+    });
     const [newTask, setNewTask] = useState("");
+
+    //save tasks on to local storage whenever tasks change
+    useEffect(()=>{
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+    }, [tasks]);
 
     // text box
     function handleInputChange(event) {
